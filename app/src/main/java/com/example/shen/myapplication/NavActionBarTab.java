@@ -1,73 +1,135 @@
 package com.example.shen.myapplication;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 /**
  * Created by Shen on 2015/11/23.
  */
-public class NavActionBarTab extends RelativeLayout implements View.OnClickListener {
+public class NavActionBarTab extends RelativeLayout implements View.OnTouchListener {
 
-    private int tabWidth = 86;
+    private int tabWidth = 0; //tab选中的宽度 无需改动
 
-    private int tabHeight = 36;
+    private int tabHeight = 36;//高度
 
-    private String[] defaultTabStr = {"消息", "关注", "粉丝"};
+    private int tabWidthPlus = 25;//决定tab的大小 ---可以改动---
 
-    private int tabBorderWidth = 1;
+    private String[] defaultTabStr = {"第一个", "第二个", "第三个"};//tab内容
 
-    private int allWidth = (tabWidth - tabHeight / 3) * defaultTabStr.length;
+    private Boolean[] tabBadge = new Boolean[defaultTabStr.length];
 
-    private int defalutColor = Color.BLACK;
+    private int tabBorderWidth = 1;//边框宽度
 
-    private int defalutBorderColor = Color.WHITE;
+    private int allWidth = 0;//整体宽度 无需改动
 
-    private Path border = new Path();
+    private int allWidthPlus = 15;//决定整体的大小  ---可以改动---
 
-    private Paint border_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int scrollWidth = 0;//每次滑动需要的距离
 
-    private Paint background_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int scrollPix = 0;//当前滑动距离
 
-    private Paint tag_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int selection = 0;//当前选中项
 
-    private Paint normal_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int defalutColor = Color.BLACK;//背景颜色/字体颜色
 
-    private int textSize = 18;
+    private int defalutBorderColor = Color.WHITE;//边框颜色/字体颜色
 
-    private static final PorterDuffXfermode PORTER_DUFF_XFERMODE = new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP);
-    private static final PorterDuffXfermode PORTER_DUFF_XFERMODE1 = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);
+    private Paint border_paint = new Paint(Paint.ANTI_ALIAS_FLAG);//边框
+
+    private Paint background_paint = new Paint(Paint.ANTI_ALIAS_FLAG);//背景
+
+    private Paint tab_paint = new Paint(Paint.ANTI_ALIAS_FLAG);//tab
+
+    private Paint normal_text_paint = new Paint(Paint.ANTI_ALIAS_FLAG);//字体
+
+    private Paint badge_paint = new Paint(Paint.ANTI_ALIAS_FLAG);//小红点
+
+    private int badgeRadius = 4;//红点大小
+
+    private int textSize = 18;//字体大小
+
+    private static final PorterDuffXfermode PORTER_DUFF_XFERMODE = new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP);//白字
+    private static final PorterDuffXfermode PORTER_DUFF_XFERMODE1 = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);//黑字
 
     public NavActionBarTab(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public NavActionBarTab(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+
+        initText(attrs);
+
+        init();
     }
 
     public NavActionBarTab(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+
+        initText(attrs);
+
+        init();
     }
 
-    public void init(Context context) {
+    void initText(AttributeSet attrs) {
+        try {
+            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.NavActionBarTab);
+            if (a != null) {
+                String text = a.getString(R.styleable.NavActionBarTab_text);
+                defaultTabStr = text.split(",");
+                tabBadge = new Boolean[defaultTabStr.length];
+                a.recycle();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void init() {
         setWillNotDraw(false);
-        setOnClickListener(this);
+
+        setOnTouchListener(this);
+
+        normal_text_paint.setTextSize(ImageUtil.dip2px(getContext(), textSize));
+        normal_text_paint.setTextAlign(Paint.Align.CENTER);
+
+        for (int i = 0; i < defaultTabStr.length; i++) {
+            String testString1 = defaultTabStr[i];
+            Rect bounds = new Rect();
+            normal_text_paint.getTextBounds(testString1, 0, testString1.length(), bounds);
+            //将字体宽度累加计算
+            allWidth += bounds.width();
+
+            tabWidth = bounds.width() + ImageUtil.dip2px(getContext(), tabWidthPlus);//后面的数字决定选中时的tab背景大小
+        }
+        allWidth += (defaultTabStr.length + 1) * ImageUtil.dip2px(getContext(), allWidthPlus);//后面的数字决定整体宽度
+
+        scrollWidth = (int) ((float) (allWidth - tabWidth) / (defaultTabStr.length - 1));
+
+        tabHeight = ImageUtil.dip2px(getContext(), tabHeight);
+
+        badgeRadius = ImageUtil.dip2px(getContext(), badgeRadius);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        int tab_border = ImageUtil.dip2px(getContext(), tabBorderWidth);
+        setMeasuredDimension(allWidth + tab_border, tabHeight + tab_border);
     }
 
     @Override
@@ -75,12 +137,13 @@ public class NavActionBarTab extends RelativeLayout implements View.OnClickListe
         super.onDraw(canvas);
 
         //画边框
-        float border_s = ImageUtil.dip2px(getContext(), tabBorderWidth);
-        float border_w = ImageUtil.dip2px(getContext(), allWidth);
-        float border_h = ImageUtil.dip2px(getContext(), tabHeight);
+        float border_s = ImageUtil.dip2px(getContext(), tabBorderWidth);//边宽
+        float border_w = allWidth;//宽
+        float border_h = tabHeight;//高
 
+        //向右下角偏移，否则会出框，偏移量为边宽
         RectF border = new RectF(border_s, border_s, border_w, border_h);
-        border_paint.setStyle(Paint.Style.STROKE);
+        border_paint.setStyle(Paint.Style.STROKE);//空心
         border_paint.setColor(defalutBorderColor);
         border_paint.setStrokeWidth(border_s);
         canvas.drawRoundRect(border, border_h, border_h, border_paint);
@@ -90,114 +153,117 @@ public class NavActionBarTab extends RelativeLayout implements View.OnClickListe
         float bg_w = border_w - border_s;
         float bg_h = border_h - border_s;
 
+        //同样需要偏移，而且宽高要缩小一边框
         RectF bg = new RectF(bg_s, bg_s, bg_w, bg_h);
         background_paint.setStyle(Paint.Style.FILL);
         background_paint.setColor(defalutColor);
         canvas.drawRoundRect(bg, bg_h, bg_h, background_paint);
 
-        //画tab
+        //画tab，需要新建画布,画布大小和上面所画边框一致
         Bitmap background = Bitmap.createBitmap((int) border_w, (int) border_h, Bitmap.Config.ARGB_8888);
         Canvas tab_cavas = new Canvas(background);
 
         float tab_s = border_s;
-        float tab_w = ImageUtil.dip2px(getContext(), tabWidth);
+        float tab_w = tabWidth;
         float tab_h = border_h;
 
-        RectF tab = new RectF(tab_s + x, tab_s, tab_w + x, tab_h);
-        tag_paint.setStyle(Paint.Style.FILL);
-        tag_paint.setColor(defalutBorderColor);
-        tab_cavas.drawRoundRect(tab, tab_h, tab_h, tag_paint);
+        RectF tab = new RectF(tab_s + scrollPix, tab_s, tab_w + scrollPix, tab_h);
+        tab_paint.setStyle(Paint.Style.FILL);
+        tab_paint.setColor(defalutBorderColor);
+        //画在新的画布上
+        tab_cavas.drawRoundRect(tab, tab_h, tab_h, tab_paint);
 
-        //写字
-        normal_text_paint.setTextSize(ImageUtil.dip2px(getContext(), textSize));
-        normal_text_paint.setTextAlign(Paint.Align.CENTER);
+        //写字，在新的画布上写字
         for (int i = 0; i < defaultTabStr.length; i++) {
             String testString1 = defaultTabStr[i];
-            normal_text_paint.setColor(defalutColor);
+
             Rect bounds = new Rect();
             normal_text_paint.getTextBounds(testString1, 0, testString1.length(), bounds);
+            //未选中时的字体，需要设置这样
+            normal_text_paint.setColor(defalutColor);
             normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE);
+            //获取字的宽高，设置为居中
             Paint.FontMetricsInt fontMetrics = normal_text_paint.getFontMetricsInt();
             int baseline = ((int) border_h - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
-            tab_cavas.drawText(testString1, (border_w - tab_w) / 2 * i + tab_w / 2, baseline, normal_text_paint);
+            //整体宽度，减去选中时的宽度，除以剩下的数量，再乘以.....醉了，数学不好，无法简化
+            tab_cavas.drawText(testString1, (border_w - tab_w) / (defaultTabStr.length - 1) * i + tab_w / 2, baseline, normal_text_paint);
 
+            //选中时的字体，需要设置这样
             normal_text_paint.setColor(defalutBorderColor);
             normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE1);
-            tab_cavas.drawText(testString1, (border_w - tab_w) / 2 * i + tab_w / 2, baseline, normal_text_paint);
+            tab_cavas.drawText(testString1, (border_w - tab_w) / (defaultTabStr.length - 1) * i + tab_w / 2, baseline, normal_text_paint);
+
+            if (tabBadge[i] != null && tabBadge[i]) {
+                badge_paint.setColor(Color.RED);
+                badge_paint.setStyle(Paint.Style.FILL);
+                tab_cavas.drawCircle((border_w - tab_w) / (defaultTabStr.length - 1) * (i + 1) - badgeRadius, (tabHeight - (fontMetrics.bottom + fontMetrics.top)) / 2 + fontMetrics.top + badgeRadius, badgeRadius, badge_paint);
+            }
         }
-
-
-        /*String testString1 = "消息";
-        Rect bounds = new Rect();
-        normal_text_paint.getTextBounds(testString1, 0, testString1.length(), bounds);
-        normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE);
-        Paint.FontMetricsInt fontMetrics = normal_text_paint.getFontMetricsInt();
-        int baseline = ((int) border_h - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
-        tab_cavas.drawText(testString1, tab_w / 2, baseline, normal_text_paint);
-
-        normal_text_paint.setColor(defalutBorderColor);
-        normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE1);
-        tab_cavas.drawText(testString1, tab_w / 2, baseline, normal_text_paint);
-
-        //写字
-        normal_text_paint.setTextSize(ImageUtil.dip2px(getContext(), textSize));
-        normal_text_paint.setTextAlign(Paint.Align.CENTER);
-        normal_text_paint.setColor(defalutColor);
-
-        String testString2 = "关注";
-        bounds = new Rect();
-        normal_text_paint.getTextBounds(testString2, 0, testString2.length(), bounds);
-        normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE);
-        fontMetrics = normal_text_paint.getFontMetricsInt();
-        baseline = ((int) border_h - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
-        tab_cavas.drawText(testString2, border_w / 2, baseline, normal_text_paint);
-
-        normal_text_paint.setColor(defalutBorderColor);
-        normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE1);
-        tab_cavas.drawText(testString2, border_w / 2, baseline, normal_text_paint);
-
-        //写字
-        normal_text_paint.setTextSize(ImageUtil.dip2px(getContext(), textSize));
-        normal_text_paint.setTextAlign(Paint.Align.CENTER);
-        normal_text_paint.setColor(defalutColor);
-
-        String testString3 = "粉丝";
-        bounds = new Rect();
-        normal_text_paint.getTextBounds(testString3, 0, testString3.length(), bounds);
-        normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE);
-        fontMetrics = normal_text_paint.getFontMetricsInt();
-        baseline = ((int) border_h - fontMetrics.bottom + fontMetrics.top) / 2 - fontMetrics.top;
-        tab_cavas.drawText(testString3, border_w - tab_w / 2, baseline, normal_text_paint);
-
-        normal_text_paint.setColor(defalutBorderColor);
-        normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE1);
-        tab_cavas.drawText(testString3, border_w - tab_w / 2, baseline, normal_text_paint);*/
 
         canvas.drawBitmap(background, 0, 0, null);
-
     }
 
-    int x = 0;
-    int num = 0;
+    public void setPositionOffsetPixels(int position, float pix) {
+        scrollPix = position * scrollWidth + (int) (scrollWidth * pix);
+        invalidate();
+    }
+
+    public void setSelection(int position) {
+        selection = position;
+        scrollPix = position * scrollWidth;
+        invalidate();
+    }
+
+    public void setBadge(int position, boolean badge) {
+        tabBadge[position] = badge;
+        invalidate();
+    }
+
+    float touchX, touchY;
+    int touchSelect; //1、2、3 点击的下标
 
     @Override
-    public void onClick(View v) {
-        if (num == defaultTabStr.length) {
-            num = 0;
-            x = 0;
+    public boolean onTouch(View v, MotionEvent event) {
+
+        int one = allWidth / 3;//每个tab点击区域的宽度
+
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                touchX = event.getX();
+                touchY = event.getY();
+
+                //计算手指按下去时点击的下标
+                touchSelect = (int) (touchX / one);
+                if (touchX % one > 0f) {
+                    touchSelect++;
+                }
+                return true;
+            case MotionEvent.ACTION_UP:
+                touchX = event.getX();
+                touchY = event.getY();
+
+                if (touchY < tabHeight) {//如果在整体范围内
+                    int up_touchSelect = (int) (touchX / one);
+                    if (touchX % one > 0f) {
+                        up_touchSelect++;
+                    }
+                    //松开时和点击时的点击下标一致时
+                    if (up_touchSelect == touchSelect && listener != null) {
+                        listener.selected(up_touchSelect);
+                    }
+                }
+                return false;
         }
-        num++;
-        int all_width = ImageUtil.dip2px(getContext(), allWidth);
-        int tab_width = ImageUtil.dip2px(getContext(), tabWidth);
-        int width = (int) ((float) (all_width - tab_width) / 2f);
-        ValueAnimator animator = new ObjectAnimator().ofInt(x, x + width).setDuration(2000);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                x = Integer.valueOf(animation.getAnimatedValue().toString());
-                invalidate();
-            }
-        });
-        animator.start();
+        return false;
+    }
+
+    public void setListener(onTabSelectedListener listener) {
+        this.listener = listener;
+    }
+
+    private onTabSelectedListener listener;
+
+    public interface onTabSelectedListener {
+        void selected(int position);
     }
 }
