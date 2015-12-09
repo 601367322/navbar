@@ -1,1 +1,1 @@
-include ':actionbartab', ':myapplication2'
+include ':library', ':app'
