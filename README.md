@@ -1,22 +1,22 @@
-# navbar
+# 字体颜色随背景颜色变化
 ![image](https://github.com/601367322/navbar/blob/master/screenshots/GIF.gif)
 
         <com.shen.actionbartab.NavActionBarTab
-        android:id="@+id/action_bar_tab"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="20dp"
-        app:n_allwidthplus="15dp"
-        app:n_height="28dp"
-        app:n_badgeradius="4dp"
-        app:n_backgroundcolor="#000"
-        app:n_bordercolor="#fff"
-        app:n_checkedtextcolor="#000"
-        app:n_defaulttextcolor="#ff9800"
-        app:n_checkedtabcolor="#fff"
-        app:n_tabwidthplus="25dp"
-        app:n_text="消息,粉丝,关注" />
+                android:id="@+id/action_bar_tab"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                app:n_allwidthplus="15dp"
+                app:n_height="28dp"
+                app:n_badgeradius="4dp"
+                app:n_backgroundcolor="#000"
+                app:n_bordercolor="#fff"
+                app:n_checkedtextcolor="#000"
+                app:n_defaulttextcolor="#ff9800"
+                app:n_checkedtabcolor="#fff"
+                app:n_tabwidthplus="25dp"
+                app:n_text="消息,粉丝,关注" />
         
         //控制整体宽度
         app:n_allwidthplus="15dp"
