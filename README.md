@@ -38,3 +38,8 @@
         app:n_tabwidthplus="25dp"
         //控制显示的字，宽度保持一致
         app:n_text="消息,粉丝,关注"
+        
+        //控制红点的位置
+        actionBarTab.setBadge(2,true);
+        //配合ViewPager使用
+        actionBarTab.addViewPager(viewpager);
