@@ -10,10 +10,13 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
+
+import java.util.Date;
 
 /**
  * Created by Shen on 2015/11/23.
@@ -22,9 +25,9 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
     private int tabWidth = 0; //tab选中的宽度 无需改动
 
-    private int tabHeight = 36;//高度
+    private int tabHeight = 28;//高度
 
-    private int tabWidthPlus = 25;//决定tab的大小 ---可以改动---
+    private int tabWidthPlus = 25;//字与选中tab的内间隔，决定tab的大小 ---可以改动---
 
     private String[] defaultTabStr = {"第一个", "第二个", "第三个"};//tab内容
 
@@ -34,7 +37,7 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
     private int allWidth = 0;//整体宽度 无需改动
 
-    private int allWidthPlus = 15;//决定整体的大小  ---可以改动---
+    private int allWidthPlus = 15;//每一项中间的间隔，决定整体的大小  ---可以改动,出来的效果可以不是等分的---
 
     private int scrollWidth = 0;//每次滑动需要的距离
 
@@ -58,7 +61,7 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
     private int badgeRadius = 4;//红点大小
 
-    private int textSize = 18;//字体大小
+    private int textSize = 14;//字体大小
 
     private static final PorterDuffXfermode PORTER_DUFF_XFERMODE = new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP);//白字
     private static final PorterDuffXfermode PORTER_DUFF_XFERMODE1 = new PorterDuffXfermode(PorterDuff.Mode.DST_OVER);//黑字
@@ -88,9 +91,14 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
         try {
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.NavActionBarTab);
             if (a != null) {
-                String text = a.getString(R.styleable.NavActionBarTab_text);
+                String text = a.getString(R.styleable.NavActionBarTab_n_text);
                 defaultTabStr = text.split(",");
                 tabBadge = new Boolean[defaultTabStr.length];
+
+                tabWidthPlus = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_tabwidthplus, dip2px(getContext(), tabWidthPlus));
+                allWidthPlus = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_allwidthplus, dip2px(getContext(), allWidthPlus));
+                tabHeight = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_height, dip2px(getContext(), tabHeight));
+                badgeRadius = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_badgeradius,dip2px(getContext(), badgeRadius));
                 a.recycle();
             }
         } catch (Exception e) {
@@ -113,15 +121,11 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
             //将字体宽度累加计算
             allWidth += bounds.width();
 
-            tabWidth = bounds.width() + dip2px(getContext(), tabWidthPlus);//后面的数字决定选中时的tab背景大小
+            tabWidth = bounds.width() + tabWidthPlus;//后面的数字决定选中时的tab背景大小
         }
-        allWidth += (defaultTabStr.length + 1) * dip2px(getContext(), allWidthPlus);//后面的数字决定整体宽度
+        allWidth += (defaultTabStr.length + 1) * allWidthPlus;//后面的数字决定整体宽度
 
         scrollWidth = (int) ((float) (allWidth - tabWidth) / (defaultTabStr.length - 1));
-
-        tabHeight = dip2px(getContext(), tabHeight);
-
-        badgeRadius = dip2px(getContext(), badgeRadius);
     }
 
     @Override
@@ -136,17 +140,23 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        Date now = new Date();
+
         //画边框
         float border_s = dip2px(getContext(), tabBorderWidth);//边宽
         float border_w = allWidth;//宽
         float border_h = tabHeight;//高
+
+        //不能直接在canvas上画，不同安卓版本会出现不同效果，必须新建画布
+        Bitmap backgrounds = Bitmap.createBitmap((int) (border_w + border_s), (int) (border_h + border_s), Bitmap.Config.ARGB_8888);
+        Canvas tav = new Canvas(backgrounds);
 
         //向右下角偏移，否则会出框，偏移量为边宽
         RectF border = new RectF(border_s, border_s, border_w, border_h);
         border_paint.setStyle(Paint.Style.STROKE);//空心
         border_paint.setColor(defalutBorderColor);
         border_paint.setStrokeWidth(border_s);
-        canvas.drawRoundRect(border, border_h, border_h, border_paint);
+        tav.drawRoundRect(border, border_h, border_h, border_paint);
 
         //画背景
         float bg_s = border_s * 2;
@@ -157,7 +167,9 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
         RectF bg = new RectF(bg_s, bg_s, bg_w, bg_h);
         background_paint.setStyle(Paint.Style.FILL);
         background_paint.setColor(defalutColor);
-        canvas.drawRoundRect(bg, bg_h, bg_h, background_paint);
+        tav.drawRoundRect(bg, bg_h, bg_h, background_paint);
+
+        canvas.drawBitmap(backgrounds, 0, 0, null);
 
         //画tab，需要新建画布,画布大小和上面所画边框一致
         Bitmap background = Bitmap.createBitmap((int) border_w, (int) border_h, Bitmap.Config.ARGB_8888);
@@ -196,6 +208,7 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
             if (tabBadge[i] != null && tabBadge[i]) {
                 badge_paint.setColor(Color.RED);
                 badge_paint.setStyle(Paint.Style.FILL);
+                //红点
                 tab_cavas.drawCircle((border_w - tab_w) / (defaultTabStr.length - 1) * (i + 1) - badgeRadius, (tabHeight - (fontMetrics.bottom + fontMetrics.top)) / 2 + fontMetrics.top + badgeRadius, badgeRadius, badge_paint);
             }
         }
@@ -249,7 +262,7 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
                     }
                     //松开时和点击时的点击下标一致时
                     if (up_touchSelect == touchSelect && listener != null) {
-                        listener.selected(up_touchSelect);
+                        listener.selected(--up_touchSelect);
                     }
                 }
                 return false;
@@ -267,13 +280,37 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
         void selected(int position);
     }
 
-    public static int px2dip(Context context, float pxValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (pxValue / scale + 0.5f);
-    }
-
     public static int dip2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
+    }
+
+    public void addViewPager(final ViewPager viewPager) {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if (positionOffset > 0f) {
+                    setPositionOffsetPixels(position, positionOffset);
+                }
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == 0) {
+                    setSelection(viewPager.getCurrentItem());
+                }
+            }
+        });
+        listener = new onTabSelectedListener() {
+            @Override
+            public void selected(int position) {
+                viewPager.setCurrentItem(position);
+            }
+        };
     }
 }

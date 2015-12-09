@@ -27,41 +27,7 @@ dependencies {
 }
 
 
-/*install {
-    repositories.mavenInstaller {
-        pom.project {
-            name 'actionbartab'
-            description 'actionbartab'
-            url 'https://github.com/601367322/navbar'
-            inceptionYear '2015'
-
-            packaging 'aar'
-            groupId 'com.shen.actionbartab'
-            artifactId 'actionbartab-lib'
-            version '0.1'
-
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-            scm {
-                connection 'https://github.com/601367322/navbar.git'
-                url 'https://github.com/601367322/navbar'
-
-            }
-            developers {
-                developer {
-                    name 'shenbingbing'
-                }
-            }
-        }
-    }
-}*/
-
-/*bintray {
+bintray {
     Properties properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
     user = properties.getProperty("bintray.user")
@@ -72,103 +38,14 @@ dependencies {
         name = 'ActionBarTab'
         userOrg = user
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/bintray/gradle-bintray-plugin.git'
+        vcsUrl = 'https://github.com/601367322/navbar.git'
         version {
-            name = '0.1'
+            name = '1.0'
             desc = 'ActionBarTab'
-            vcsTag = '0.1'
+            vcsTag = '1.0'
             attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
         }
     }
 
-}*/
-
-bintray {
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['deployables'] //When uploading configuration files
-    dryRun = false //Whether to run this as dry-run, without deploying
-    publish = true //If version should be auto published after an upload
-    //Package configuration. The plugin will use the repo and name properties to check if the package already exists. In that case, there's no need to configure the other package properties (like userOrg, desc, etc).
-    pkg {
-        repo = 'myrepo'
-        name = 'mypkg'
-        userOrg = 'myorg' //An optional organization name when the repo belongs to one of the user's orgs
-        desc = 'what a fantastic package indeed!'
-        websiteUrl = 'https://github.com/601367322/navbar'
-        vcsUrl = 'https://github.com/601367322/navbar.git'
-        licenses = ['Apache-2.0']
-        labels = ['gear', 'gore', 'gorilla']
-        publicDownloadNumbers = true
-        attributes= ['a': ['ay1', 'ay2'], 'b': ['bee'], c: 'cee'] //Optional package-level attributes
-    }
 }
 
-/*
-def siteUrl = 'https://github.com/601367322/navbar'
-def gitUrl = 'https://github.com/601367322/navbar.git'
-group = "com.shen.actionbartab"
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                name 'ActionBarTab'
-                url siteUrl
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'shenbingbing'
-                        name 'Rocko'
-                        email 'zhengxiaopeng.china@gmail.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "ActionBarTab"    //发布到JCenter上的项目名字
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-    }
-}*/
