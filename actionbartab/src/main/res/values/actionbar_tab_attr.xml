@@ -2,9 +2,14 @@
 <resources>
     <declare-styleable name="NavActionBarTab">
         <attr name="n_text" format="string" />
-        <attr name="n_tabwidthplus" format="dimension"/>
-        <attr name="n_allwidthplus" format="dimension"/>
-        <attr name="n_height" format="dimension"/>
-        <attr name="n_badgeradius" format="dimension"/>
+        <attr name="n_tabwidthplus" format="dimension" />
+        <attr name="n_allwidthplus" format="dimension" />
+        <attr name="n_height" format="dimension" />
+        <attr name="n_badgeradius" format="dimension" />
+        <attr name="n_defaulttextcolor" format="color" />
+        <attr name="n_checkedtextcolor" format="color" />
+        <attr name="n_bordercolor" format="color" />
+        <attr name="n_backgroundcolor" format="color" />
+        <attr name="n_checkedtabcolor" format="color" />
     </declare-styleable>
 </resources>

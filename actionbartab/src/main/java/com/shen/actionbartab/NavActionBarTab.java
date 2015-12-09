@@ -49,6 +49,12 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
     private int defalutBorderColor = Color.WHITE;//边框颜色/字体颜色
 
+    private int defaultTextColor = Color.WHITE;
+
+    private int checkedTextColor = Color.BLACK;
+
+    private int checkedTabColor = Color.WHITE;
+
     private Paint border_paint = new Paint(Paint.ANTI_ALIAS_FLAG);//边框
 
     private Paint background_paint = new Paint(Paint.ANTI_ALIAS_FLAG);//背景
@@ -98,7 +104,12 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
                 tabWidthPlus = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_tabwidthplus, dip2px(getContext(), tabWidthPlus));
                 allWidthPlus = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_allwidthplus, dip2px(getContext(), allWidthPlus));
                 tabHeight = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_height, dip2px(getContext(), tabHeight));
-                badgeRadius = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_badgeradius,dip2px(getContext(), badgeRadius));
+                badgeRadius = a.getDimensionPixelOffset(R.styleable.NavActionBarTab_n_badgeradius, dip2px(getContext(), badgeRadius));
+                defalutBorderColor = a.getColor(R.styleable.NavActionBarTab_n_bordercolor, defalutBorderColor);
+                defalutColor = a.getColor(R.styleable.NavActionBarTab_n_backgroundcolor, defalutColor);
+                defaultTextColor = a.getColor(R.styleable.NavActionBarTab_n_defaulttextcolor, defaultTextColor);
+                checkedTextColor = a.getColor(R.styleable.NavActionBarTab_n_checkedtextcolor, checkedTextColor);
+                checkedTabColor = a.getColor(R.styleable.NavActionBarTab_n_checkedtabcolor, checkedTabColor);
                 a.recycle();
             }
         } catch (Exception e) {
@@ -181,7 +192,7 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
         RectF tab = new RectF(tab_s + scrollPix, tab_s, tab_w + scrollPix, tab_h);
         tab_paint.setStyle(Paint.Style.FILL);
-        tab_paint.setColor(defalutBorderColor);
+        tab_paint.setColor(checkedTabColor);
         //画在新的画布上
         tab_cavas.drawRoundRect(tab, tab_h, tab_h, tab_paint);
 
@@ -191,8 +202,8 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
             Rect bounds = new Rect();
             normal_text_paint.getTextBounds(testString1, 0, testString1.length(), bounds);
-            //未选中时的字体，需要设置这样
-            normal_text_paint.setColor(defalutColor);
+            //选中时的字体，需要设置这样
+            normal_text_paint.setColor(checkedTextColor);
             normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE);
             //获取字的宽高，设置为居中
             Paint.FontMetricsInt fontMetrics = normal_text_paint.getFontMetricsInt();
@@ -200,8 +211,8 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
             //整体宽度，减去选中时的宽度，除以剩下的数量，再乘以.....醉了，数学不好，无法简化
             tab_cavas.drawText(testString1, (border_w - tab_w) / (defaultTabStr.length - 1) * i + tab_w / 2, baseline, normal_text_paint);
 
-            //选中时的字体，需要设置这样
-            normal_text_paint.setColor(defalutBorderColor);
+            //未选中时的字体，需要设置这样
+            normal_text_paint.setColor(defaultTextColor);
             normal_text_paint.setXfermode(PORTER_DUFF_XFERMODE1);
             tab_cavas.drawText(testString1, (border_w - tab_w) / (defaultTabStr.length - 1) * i + tab_w / 2, baseline, normal_text_paint);
 

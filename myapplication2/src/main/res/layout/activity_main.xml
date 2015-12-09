@@ -15,6 +15,11 @@
         app:n_allwidthplus="15dp"
         app:n_height="28dp"
         app:n_badgeradius="4dp"
+        app:n_backgroundcolor="#000"
+        app:n_bordercolor="#fff"
+        app:n_checkedtextcolor="#000"
+        app:n_defaulttextcolor="#ff9800"
+        app:n_checkedtabcolor="#fff"
         app:n_tabwidthplus="25dp"
         app:n_text="消息,粉丝,关注" />
 
