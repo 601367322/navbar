@@ -1,6 +1,7 @@
 # navbar
 ![image](https://github.com/601367322/navbar/blob/master/screenshots/GIF.gif)
-<com.shen.actionbartab.NavActionBarTab
+
+        <com.shen.actionbartab.NavActionBarTab
         android:id="@+id/action_bar_tab"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
