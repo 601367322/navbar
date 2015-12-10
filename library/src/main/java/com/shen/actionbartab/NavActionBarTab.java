@@ -167,7 +167,7 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
         border_paint.setStyle(Paint.Style.STROKE);//空心
         border_paint.setColor(defalutBorderColor);
         border_paint.setStrokeWidth(border_s);
-        tav.drawRoundRect(border, border_h, border_h, border_paint);
+        tav.drawRoundRect(border, border_h / 2, border_h / 2, border_paint);
 
         //画背景
         float bg_s = border_s * 2;
@@ -194,7 +194,7 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
         tab_paint.setStyle(Paint.Style.FILL);
         tab_paint.setColor(checkedTabColor);
         //画在新的画布上
-        tab_cavas.drawRoundRect(tab, tab_h, tab_h, tab_paint);
+        tab_cavas.drawRoundRect(tab, border_h / 2, border_h / 2, tab_paint);
 
         //写字，在新的画布上写字
         for (int i = 0; i < defaultTabStr.length; i++) {
