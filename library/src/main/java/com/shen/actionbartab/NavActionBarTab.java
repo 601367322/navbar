@@ -74,7 +74,6 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
     public NavActionBarTab(Context context) {
         super(context);
-        init();
     }
 
     public NavActionBarTab(Context context, AttributeSet attrs) {
@@ -82,15 +81,12 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
         initText(attrs);
 
-        init();
     }
 
     public NavActionBarTab(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         initText(attrs);
-
-        init();
     }
 
     void initText(AttributeSet attrs) {
@@ -239,6 +235,9 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
     }
 
     public void setBadge(int position, boolean badge) {
+        if (position >= tabBadge.length) {
+            return;
+        }
         tabBadge[position] = badge;
         invalidate();
     }
@@ -307,7 +306,6 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
 
             @Override
             public void onPageSelected(int position) {
-
             }
 
             @Override
@@ -323,5 +321,14 @@ public class NavActionBarTab extends RelativeLayout implements View.OnTouchListe
                 viewPager.setCurrentItem(position);
             }
         };
+    }
+
+    public void setText(String str) {
+        defaultTabStr = str.split(",");
+        tabBadge = new Boolean[defaultTabStr.length];
+
+        init();
+
+        invalidate();
     }
 }

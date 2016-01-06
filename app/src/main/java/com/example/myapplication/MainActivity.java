@@ -11,10 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shen.actionbartab.NavActionBarTab;
+import com.shen.test.R;
+
+import org.androidannotations.annotations.EActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@EActivity
 public class MainActivity extends AppCompatActivity {
 
 

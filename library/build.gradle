@@ -27,18 +27,55 @@ dependencies {
 }
 
 
+
+def siteUrl = 'https://github.com/601367322/navbar'      // 项目的主页
+def gitUrl = 'https://github.com/601367322/navbar.git'   // Git仓库的url
+group = "com.shen"
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                // Add your description here
+                name 'Android tab 滑动切换'  //项目描述
+                url siteUrl
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'shenbingbing'       //填写开发者基本信息
+                        name 'shenbingbing'
+                        email 'bjshenbingbing11@163.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 bintray {
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
     configurations = ['archives']
     pkg {
         repo = 'maven'
         name = 'ActionBarTab'
-        userOrg = user
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/601367322/navbar.git'
         version {
             name = '1.0'
             desc = 'ActionBarTab'
@@ -46,6 +83,4 @@ bintray {
             attributes = ['gradle-plugin': 'com.use.less:com.use.less.gradle:gradle-useless-plugin']
         }
     }
-
 }
-
